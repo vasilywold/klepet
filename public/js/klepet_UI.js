@@ -1,3 +1,16 @@
+
+var besedilPoSlikah;
+//doda nam vse slike na koncu. Kot html elemente
+function dodajSlike(linki){
+  var slike;
+  for(var i in linki){
+     var trenutniHtml = $('<img src="'+ linki[i] +' style="width:200px; height:100px ; padding-left: 20px;">').html()
+     slike.append(trenutniHtml);
+  }
+  return slike;
+  
+}
+
 function divElementEnostavniTekst(sporocilo) {
   var jeSmesko = sporocilo.indexOf('http://sandbox.lavbic.net/teaching/OIS/gradivo/') > -1;
   if (jeSmesko) {
@@ -14,9 +27,12 @@ function divElementHtmlTekst(sporocilo) {
 
 function procesirajVnosUporabnika(klepetApp, socket) {
   var sporocilo = $('#poslji-sporocilo').val();
-  sporocilo = dodajSmeske(sporocilo);
+  //procesirali bomo ta vnos pred dodajnjem smeškov, da nam to ne pokvari link-ov
+  var slike = najdiSlike(sporocilo)
+  sporocilo = besedilPoSlikah;
+  sporocilo += dodajSmeske(sporocilo);
   var sistemskoSporocilo;
-
+  
   if (sporocilo.charAt(0) == '/') {
     sistemskoSporocilo = klepetApp.procesirajUkaz(sporocilo);
     if (sistemskoSporocilo) {
@@ -24,6 +40,7 @@ function procesirajVnosUporabnika(klepetApp, socket) {
     }
   } else {
     sporocilo = filtirirajVulgarneBesede(sporocilo);
+    dodajSlike
     klepetApp.posljiSporocilo(trenutniKanal, sporocilo);
     $('#sporocila').append(divElementEnostavniTekst(sporocilo));
     $('#sporocila').scrollTop($('#sporocila').prop('scrollHeight'));
@@ -39,6 +56,24 @@ var vulgarneBesede = [];
 $.get('/swearWords.txt', function(podatki) {
   vulgarneBesede = podatki.split('\r\n');
 });
+
+
+function najdiSlike(vhod){
+  //RegEx = "/(http:\/\/\S+(\.png|\.jpg|\.gif) | https:\/\/\S+(\.png|\.jpg|\.gif))/gi"
+  //"(http:\S n* (\.png|\.jpg|\.gif) | https:\S n*(\.png|\.jpg|\.gif))"
+  var regularExpression = new RegExp("(https?:\/\/[^ ]*\.(?:gif|png|jpg|jpeg)|http?:\/\/[^ ]*\.(?:gif|png|jpg|jpeg))", 'gi');
+  var slike = vhod.match(regularExpression);
+  vhod.replace(regularExpression, function() {
+    return " ";
+  });
+  /*console.log(trenutno);
+  for(var i in trenutno){
+    console.log(trenutno[i]);
+  }*/
+  besedilPoSlikah = vhod;
+  return slike;
+  
+}
 
 function filtirirajVulgarneBesede(vhod) {
   for (var i in vulgarneBesede) {
