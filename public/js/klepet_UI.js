@@ -1,12 +1,18 @@
 
-var besedilPoSlikah;
+var besediloPoSlikah;
 //doda nam vse slike na koncu. Kot html elemente
-function dodajSlike(linki){
-  var slike;
+function spremeniSlikeVLinke(linki){
+  //console.log(linki);
+  var slike = [];
   for(var i in linki){
-     var trenutniHtml = $('<img src="'+ linki[i] +' style="width:200px; height:100px ; padding-left: 20px;">').html()
-     slike.append(trenutniHtml);
+     var trenImg=document.createElement("img");
+     trenImg.setAttribute('src', linki[i]);
+     trenImg.style.width = '200px';
+     trenImg.style.paddingLeft = '20px';
+     slike.push(trenImg);
+     //console.log("Are we in dodajSlike " + trenImg.outerHTML);
   }
+  
   return slike;
   
 }
@@ -28,9 +34,11 @@ function divElementHtmlTekst(sporocilo) {
 function procesirajVnosUporabnika(klepetApp, socket) {
   var sporocilo = $('#poslji-sporocilo').val();
   //procesirali bomo ta vnos pred dodajnjem smeškov, da nam to ne pokvari link-ov
-  var slike = najdiSlike(sporocilo)
-  sporocilo = besedilPoSlikah;
-  sporocilo += dodajSmeske(sporocilo);
+  var slike = najdiSlike(sporocilo);
+  sporocilo = besediloPoSlikah;
+  //console.log("Nasli slike: "+slike);
+  //console.log("Besedilo je sedaj: "+sporocilo);
+  sporocilo = dodajSmeske(sporocilo);
   var sistemskoSporocilo;
   
   if (sporocilo.charAt(0) == '/') {
@@ -40,9 +48,13 @@ function procesirajVnosUporabnika(klepetApp, socket) {
     }
   } else {
     sporocilo = filtirirajVulgarneBesede(sporocilo);
-    dodajSlike
+    slike = spremeniSlikeVLinke(slike);
     klepetApp.posljiSporocilo(trenutniKanal, sporocilo);
     $('#sporocila').append(divElementEnostavniTekst(sporocilo));
+    //dodajanje slik
+    for(var i in slike){
+      $('#sporocila').append(slike[i]);
+    }
     $('#sporocila').scrollTop($('#sporocila').prop('scrollHeight'));
   }
 
@@ -59,18 +71,13 @@ $.get('/swearWords.txt', function(podatki) {
 
 
 function najdiSlike(vhod){
-  //RegEx = "/(http:\/\/\S+(\.png|\.jpg|\.gif) | https:\/\/\S+(\.png|\.jpg|\.gif))/gi"
-  //"(http:\S n* (\.png|\.jpg|\.gif) | https:\S n*(\.png|\.jpg|\.gif))"
+  //regularExpression
   var regularExpression = new RegExp("(https?:\/\/[^ ]*\.(?:gif|png|jpg|jpeg)|http?:\/\/[^ ]*\.(?:gif|png|jpg|jpeg))", 'gi');
   var slike = vhod.match(regularExpression);
-  vhod.replace(regularExpression, function() {
+  vhod = vhod.replace(regularExpression, function() {
     return " ";
   });
-  /*console.log(trenutno);
-  for(var i in trenutno){
-    console.log(trenutno[i]);
-  }*/
-  besedilPoSlikah = vhod;
+  besediloPoSlikah = vhod;
   return slike;
   
 }
