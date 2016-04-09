@@ -1,7 +1,7 @@
 
 var besediloPoSlikah;
 //doda nam vse slike na koncu. Kot html elemente
-function spremeniSlikeVLinke(linki){
+function spremeniSlikeVHTML(linki){
   //console.log(linki);
   var slike = [];
   for(var i in linki){
@@ -34,8 +34,6 @@ function divElementHtmlTekst(sporocilo) {
 function procesirajVnosUporabnika(klepetApp, socket) {
   var sporocilo = $('#poslji-sporocilo').val();
   //procesirali bomo ta vnos pred dodajnjem smeškov, da nam to ne pokvari link-ov
-  var slike = najdiSlike(sporocilo);
-  sporocilo = besediloPoSlikah;
   //console.log("Nasli slike: "+slike);
   //console.log("Besedilo je sedaj: "+sporocilo);
   sporocilo = dodajSmeske(sporocilo);
@@ -48,10 +46,13 @@ function procesirajVnosUporabnika(klepetApp, socket) {
     }
   } else {
     sporocilo = filtirirajVulgarneBesede(sporocilo);
-    slike = spremeniSlikeVLinke(slike);
     klepetApp.posljiSporocilo(trenutniKanal, sporocilo);
+    var slike = najdiSlike(sporocilo);
+    sporocilo = besediloPoSlikah;
+   
     $('#sporocila').append(divElementEnostavniTekst(sporocilo));
     //dodajanje slik
+    slike = spremeniSlikeVHTML(slike);
     for(var i in slike){
       $('#sporocila').append(slike[i]);
     }
@@ -116,8 +117,27 @@ $(document).ready(function() {
   });
 
   socket.on('sporocilo', function (sporocilo) {
-    var novElement = divElementEnostavniTekst(sporocilo.besedilo);
+    //najdemo slike
+    var slike = najdiSlike(sporocilo.besedilo);
+    var sporocilo = besediloPoSlikah;
+    
+    var novElement = divElementEnostavniTekst(sporocilo);
     $('#sporocila').append(novElement);
+    slike = spremeniSlikeVHTML(slike);
+    //dodamo slike
+    slike.forEach(function(img){
+      $('#sporocila').append(img);
+    });
+    
+  });
+  
+  socket.on('slike', function(slike) {
+    //slike so ze html elementi
+    console.log(slike.slike);
+    slike = spremeniSlikeVHTML(slike.slike);
+    for(var i in slike){
+       $('#sporocila').append(slike[i]);
+    }
   });
   
   socket.on('kanali', function(kanali) {
