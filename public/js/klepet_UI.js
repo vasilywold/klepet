@@ -1,3 +1,44 @@
+var youtubeElementi;
+function idFromYoutubeLink(url){
+  var regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  var match = url.match(regExp);
+  if (match && match[2].length == 11) {
+    return match[2];
+  } else {
+    console.log("Napaka z URL-jem")
+    return false;
+  }
+}
+
+//precisti sporocilo, da ni vec linkov, poleg tega pa v spremenljivki youtubeElementi vrni iframe-e za sporocilo
+function urediYoutube(sporocilo){
+  //inicializiraj in isprazni seznam
+  youtubeElementi = [];
+  //dobi youtube link iz sporocila
+  var regularExpression = new RegExp("/^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;","gi");
+  var linki = sporocilo.match(regularExpression);
+  //pusti presledke na mestih linkov
+  sporocilo = sporocilo.replace(regularExpression, function() {
+    return " ";
+  });
+  //iz youtube linkov dobi id-je 
+  //  spremeni v iframe elemente
+   for(var i in  linki){
+     //ta link je sedaj id
+     linki[i] = idFromYoutubeLink(linki[i]);
+     if(linki[i]==false) continue;
+     //kreiramo iframe element
+     var iframe = document.createElement('iframe');
+     iframe.src = 'https://www.youtube.com/embed/'+linki[i];
+     iframe.setAttribute('allowFullScreen', '');
+     iframe.style.width = "200px";
+     iframe.style.height = "150px";
+     iframe.style.paddingLeft ="20px";
+   }
+    
+    return sporocilo;
+}
+
 function divElementEnostavniTekst(sporocilo) {
   var jeSmesko = sporocilo.indexOf('http://sandbox.lavbic.net/teaching/OIS/gradivo/') > -1;
   if (jeSmesko) {
@@ -14,6 +55,7 @@ function divElementHtmlTekst(sporocilo) {
 
 function procesirajVnosUporabnika(klepetApp, socket) {
   var sporocilo = $('#poslji-sporocilo').val();
+  var sporocilo = urediYoutube(sporocilo);
   sporocilo = dodajSmeske(sporocilo);
   var sistemskoSporocilo;
 
@@ -26,6 +68,9 @@ function procesirajVnosUporabnika(klepetApp, socket) {
     sporocilo = filtirirajVulgarneBesede(sporocilo);
     klepetApp.posljiSporocilo(trenutniKanal, sporocilo);
     $('#sporocila').append(divElementEnostavniTekst(sporocilo));
+    for(var i in youtubeElementi){
+      $('#sporocila').append(youtubeElementi[i]);
+    }
     $('#sporocila').scrollTop($('#sporocila').prop('scrollHeight'));
   }
 
