@@ -10,7 +10,7 @@ Klepet.prototype.posljiSporocilo = function(kanal, besedilo) {
   this.socket.emit('sporocilo', sporocilo);
 };
 
-
+var u = "uuuuuuuuuuuuu";
 
 Klepet.prototype.spremeniKanal = function(kanal) {
   this.socket.emit('pridruzitevZahteva', {
