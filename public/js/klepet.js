@@ -10,8 +10,6 @@ Klepet.prototype.posljiSporocilo = function(kanal, besedilo) {
   this.socket.emit('sporocilo', sporocilo);
 };
 
-var u = "uuuuuuuuuuuuu";
-
 Klepet.prototype.spremeniKanal = function(kanal) {
   this.socket.emit('pridruzitevZahteva', {
     novKanal: kanal
@@ -24,6 +22,24 @@ Klepet.prototype.procesirajUkaz = function(ukaz) {
   var sporocilo = false;
 
   switch(ukaz) {
+    case 'dregljaj':
+      besede.shift();
+      var besedilo = besede.join(' ');
+      /*console.log("Inside besedilo: " + besedilo);
+      console.log("Inside besede: " + besede);
+      console.log("Inside parametri: " + parametri);*/
+      var parametri = besedilo.split('\"');
+      parametri = besede;
+      besede = "";
+      //execute order
+      if(parametri){
+        this.socket.emit('sporocilo',{ vzdevek: besedilo, besedilo: besede});
+        this.socket.emit('dregljaj',{ vzdevek: besedilo, besedilo: besede});
+        sporocilo = "Dregljaj za " + parametri[0];
+      }else{
+        sporocilo = 'Neznan ukaz';
+      }
+      break;
     case 'pridruzitev':
       besede.shift();
       var kanal = besede.join(' ');
