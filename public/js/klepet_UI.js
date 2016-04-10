@@ -1,3 +1,22 @@
+/*$.getScript("https://www.youtube.com/iframe_api", function(){
+    
+   alert("Script loaded but not necessarily executed.");
+
+});
+
+function onYouTubeIframeAPIReady(id) {
+        player = new YT.Player('player', {
+          height: '390',
+          width: '640',
+          videoId: id,
+          events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+          }
+        }
+        return player
+  
+}*/
 var youtubeElementi;
 function idFromYoutubeLink(url){
   var regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -15,12 +34,15 @@ function urediYoutube(sporocilo){
   //inicializiraj in isprazni seznam
   youtubeElementi = [];
   //dobi youtube link iz sporocila
-  var regularExpression = new RegExp("/^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;","gi");
+  //var regularExpression = new RegExp("^(https\:/\/www\.youtube\.com\/watch)","gi");
+  var regularExpression = new RegExp("\\bhttps\:/\/www\.youtube\.com\/watch\\S{13,15}\\b","gi");
   var linki = sporocilo.match(regularExpression);
   //pusti presledke na mestih linkov
   sporocilo = sporocilo.replace(regularExpression, function() {
     return " ";
   });
+  console.log("sporocilo: " + sporocilo);
+  console.log("linki: " + linki );
   //iz youtube linkov dobi id-je 
   //  spremeni v iframe elemente
    for(var i in  linki){
@@ -31,9 +53,12 @@ function urediYoutube(sporocilo){
      var iframe = document.createElement('iframe');
      iframe.src = 'https://www.youtube.com/embed/'+linki[i];
      iframe.setAttribute('allowFullScreen', '');
-     iframe.style.width = "200px";
-     iframe.style.height = "150px";
-     iframe.style.paddingLeft ="20px";
+     iframe.style.width = "280px";
+     iframe.style.height = "210px";
+     var currDiv = document.createElement('div');
+     currDiv.style.paddingLeft = "20px";
+     currDiv.appendChild(iframe);
+     youtubeElementi.push(currDiv);
    }
     
     return sporocilo;
@@ -55,7 +80,6 @@ function divElementHtmlTekst(sporocilo) {
 
 function procesirajVnosUporabnika(klepetApp, socket) {
   var sporocilo = $('#poslji-sporocilo').val();
-  var sporocilo = urediYoutube(sporocilo);
   sporocilo = dodajSmeske(sporocilo);
   var sistemskoSporocilo;
 
@@ -67,6 +91,7 @@ function procesirajVnosUporabnika(klepetApp, socket) {
   } else {
     sporocilo = filtirirajVulgarneBesede(sporocilo);
     klepetApp.posljiSporocilo(trenutniKanal, sporocilo);
+    var sporocilo = urediYoutube(sporocilo);
     $('#sporocila').append(divElementEnostavniTekst(sporocilo));
     for(var i in youtubeElementi){
       $('#sporocila').append(youtubeElementi[i]);
