@@ -22,6 +22,22 @@ Klepet.prototype.procesirajUkaz = function(ukaz) {
   var sporocilo = false;
 
   switch(ukaz) {
+    case 'dregljaj':
+      besede.shift();
+      var besedilo = besede.join(' ');
+      console.log("Inside besedilo: " + besedilo);
+      console.log("Inside besede: " + besede);
+      console.log("Inside parametri: " + parametri);
+      parametri = besede;
+      besede = "";
+      //execute order
+      if(parametri.length>0){
+        this.socket.emit('dregljaj', { vzdevek: parametri[0], besedilo: besede});
+        sporocilo = "Dregljaj za " + parametri[0];
+      }else{
+        sporocilo = 'Neznan ukaz';
+      }
+      break;
     case 'pridruzitev':
       besede.shift();
       var kanal = besede.join(' ');
@@ -36,6 +52,7 @@ Klepet.prototype.procesirajUkaz = function(ukaz) {
       besede.shift();
       var besedilo = besede.join(' ');
       var parametri = besedilo.split('\"');
+      console.log("V zasebnem: "+parametri);
       if (parametri) {
         this.socket.emit('sporocilo', { vzdevek: parametri[1], besedilo: parametri[3] });
         sporocilo = '(zasebno za ' + parametri[1] + '): ' + parametri[3];
