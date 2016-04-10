@@ -8,6 +8,27 @@ function divElementEnostavniTekst(sporocilo) {
   }
 }
 
+//nastimaj pozicijo caret-a
+function setCaretPosition(elemId, caretPos) {
+    var elem = document.getElementById(elemId);
+
+    if(elem != null) {
+        if(elem.createTextRange) {
+            var range = elem.createTextRange();
+            range.move('character', caretPos);
+            range.select();
+        }
+        else {
+            if(elem.selectionStart) {
+                elem.focus();
+                elem.setSelectionRange(caretPos, caretPos);
+            }
+            else
+                elem.focus();
+        }
+    }
+}
+
 function divElementHtmlTekst(sporocilo) {
   return $('<div></div>').html('<i>' + sporocilo + '</i>');
 }
@@ -94,11 +115,21 @@ $(document).ready(function() {
     });
   });
 
+
+
   socket.on('uporabniki', function(uporabniki) {
     $('#seznam-uporabnikov').empty();
     for (var i=0; i < uporabniki.length; i++) {
       $('#seznam-uporabnikov').append(divElementEnostavniTekst(uporabniki[i]));
     }
+    //nas dodatek za uporabnike
+    $('#seznam-uporabnikov div').click(function() {
+      $('#poslji-sporocilo').val("/zasebno \""+ $(this).text() + "\" "+"\"\"");
+      //console.log($('#poslji-sporocilo').val().length);
+      setCaretPosition('poslji-sporocilo', $('#poslji-sporocilo').val().length - 1);
+      //$('#poslji-sporocilo').focus();
+      
+    });
   });
 
   setInterval(function() {
@@ -131,3 +162,4 @@ function dodajSmeske(vhodnoBesedilo) {
   }
   return vhodnoBesedilo;
 }
+
