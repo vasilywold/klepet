@@ -53,8 +53,8 @@ function urediYoutube(sporocilo){
      var iframe = document.createElement('iframe');
      iframe.src = 'https://www.youtube.com/embed/'+linki[i];
      iframe.setAttribute('allowFullScreen', '');
-     iframe.style.width = "280px";
-     iframe.style.height = "210px";
+     iframe.style.width = "200px";
+     iframe.style.height = "150px";
      var currDiv = document.createElement('div');
      currDiv.style.paddingLeft = "20px";
      currDiv.appendChild(iframe);
@@ -144,8 +144,19 @@ $(document).ready(function() {
   });
 
   socket.on('sporocilo', function (sporocilo) {
-    var novElement = divElementEnostavniTekst(sporocilo.besedilo);
+    //make life easier
+    var sporocilo = sporocilo.besedilo;
+    //naredi vse uzvezi z youtube elementi
+    var sporocilo = urediYoutube(sporocilo);
+    var novElement = divElementEnostavniTekst(sporocilo);
+    console.log(sporocilo);
+    
+    //vse dodaj na board
     $('#sporocila').append(novElement);
+    for(var i in youtubeElementi){
+      $('#sporocila').append(youtubeElementi[i]);
+    }
+    //dodelaj youtube zadeve
   });
   
   socket.on('kanali', function(kanali) {
